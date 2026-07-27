@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulasi ABM Evakuasi Kebakaran Gedung</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --panel-bg: #1e293b;
+            --accent-color: #38bdf8;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --occupant-color: #22c55e;
+            --firefighter-color: #3b82f6;
+            --fire-color: #ef4444;
+            --smoke-color: rgba(148, 163, 184, 0.6);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        header {
+            background-color: var(--panel-bg);
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 1.2rem;
+            color: var(--accent-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .badge {
+            background-color: rgba(56, 189, 248, 0.2);
+            color: var(--accent-color);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* Controls Sidebar */
+        .sidebar {
+            width: 320px;
+            background-color: var(--panel-bg);
+            border-right: 1px solid var(--border-color);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow-y: auto;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .control-group label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .control-group label span.val {
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            accent-color: var(--accent-color);
+        }
+
+        select, button {
+            background-color: #0f172a;
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        button.btn-primary {
+            background-color: #0284c7;
+            border-color: #0284c7;
+            color: white;
+            font-weight: bold;
+        }
+
+        button.btn-primary:hover {
+            background-color: #0369a1;
+        }
+
+        button.btn-reset {
+            background-color: #475569;
+            border-color: #475569;
+            color: white;
+        }
+
+        button.btn-reset:hover {
+            background-color: #334155;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-group button {
+            flex: 1;
+        }
+
+        .stats-panel {
+            background-color: #0f172a;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+        }
+
+        .stat-item .value {
+            font-weight: bold;
+        }
+
+        .legend {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 0.8rem;
+            margin-top: 10px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 10px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        /* Viewport Area */
+        .viewport-container {
+            flex: 1;
+            display: flex;
+            gap: 10px;
+            padding: 15px;
+            background-color: #020617;
+        }
+
+        .view-card {
+            flex: 1;
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .view-header {
+            background-color: rgba(15, 23, 42, 0.8);
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .view-canvas-container {
+            flex: 1;
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .floor-selector {
+            display: flex;
+            gap: 5px;
+        }
+
+        .floor-btn {
+            padding: 2px 8px;
+            font-size: 0.75rem;
+            border-radius: 4px;
+            background-color: #0f172a;
+        }
+
+        .floor-btn.active {
+            background-color: var(--accent-color);
+            color: #0f172a;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Simulasi ABM Evakuasi Gedung & Intervensi Pemadam <span class="badge">Dual-View Architecture</span></h1>
+        <div id="sim-status" style="font-size: 0.85rem; color: #10b981; font-weight: bold;">Status: Ready</div>
+    </header>
+
+    <div class="main-container">
+        <!-- Sidebar Controls -->
+        <div class="sidebar">
+            <div class="control-group">
+                <label>Jumlah Penghuni: <span class="val" id="val-occupants">30</span></label>
+                <input type="range" id="param-occupants" min="10" max="80" value="30">
+            </div>
+
+            <div class="control-group">
+                <label>Lantai Titik Api: <span class="val" id="val-fire-floor">Lantai 4</span></label>
+                <input type="range" id="param-fire-floor" min="2" max="6" value="4">
+            </div>
+
+            <div class="control-group">
+                <label>Penyebaran Asap</label>
+                <select id="param-smoke">
+                    <option value="true">Aktif (Memperlambat Agen)</option>
+                    <option value="false">Non-Aktif</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label>Kecepatan Lift Pemadam</label>
+                <input type="range" id="param-lift-speed" min="1" max="4" value="2" step="0.5">
+            </div>
+
+            <div class="btn-group">
+                <button id="btn-start" class="btn-primary">Mulai Simulasi</button>
+                <button id="btn-reset" class="btn-reset">Reset</button>
+            </div>
+
+            <!-- Stats Panel -->
+            <div class="stats-panel">
+                <div style="font-weight: bold; margin-bottom: 5px; color: var(--accent-color);">Statistik Real-Time</div>
+                <div class="stat-item">
+                    <span>Waktu Simulasi:</span>
+                    <span class="value" id="stat-time">00:00 s</span>
+                </div>
+                <div class="stat-item">
+                    <span>Total Penghuni:</span>
+                    <span class="value" id="stat-total">30</span>
+                </div>
+                <div class="stat-item">
+                    <span>Berhasil Evakuasi:</span>
+                    <span class="value" style="color: #22c55e;" id="stat-evacuated">0</span>
+                </div>
+                <div class="stat-item">
+                    <span>Terjebak / Pingsan:</span>
+                    <span class="value" style="color: #ef4444;" id="stat-trapped">0</span>
+                </div>
+                <div class="stat-item">
+                    <span>Status Pemadam:</span>
+                    <span class="value" style="color: #3b82f6;" id="stat-ff-status">Menunggu</span>
+                </div>
+            </div>
+
+            <!-- Legend -->
+            <div class="legend">
+                <div style="font-weight: bold; margin-bottom: 4px;">Keterangan Simbol:</div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #22c55e;"></div>
+                    <span>Penghuni Gedung (Evakuasi via Tangga)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #3b82f6;"></div>
+                    <span>Pemadam Kebakaran (Naik via Lift)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #ef4444;"></div>
+                    <span>Sumber Api</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: rgba(148, 163, 184, 0.8);"></div>
+                    <span>Area Asap / Asap Pekat</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #eab308;"></div>
+                    <span>Tangga Darurat (Sisi Kiri)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #06b6d4;"></div>
+                    <span>Lift Kebakaran (Sisi Kanan)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Viewports -->
+        <div class="viewport-container">
+            <!-- View 1: Axonometric 3D -->
+            <div class="view-card">
+                <div class="view-header">
+                    <span>Proyeksi Aksonometri Vertikal Gedung</span>
+                    <span style="font-size: 0.75rem; color: var(--text-muted);">6-Floor Isometric View</span>
+                </div>
+                <div class="view-canvas-container">
+                    <canvas id="canvas-3d"></canvas>
+                </div>
+            </div>
+
+            <!-- View 2: Floor Plan 2D -->
+            <div class="view-card">
+                <div class="view-header">
+                    <span>Denah Lantai 2D (Floor Plan)</span>
+                    <div class="floor-selector" id="floor-buttons">
+                        <!-- Buttons dynamic -->
+                    </div>
+                </div>
+                <div class="view-canvas-container">
+                    <canvas id="canvas-2d"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simulation Configuration
+        const TOTAL_FLOORS = 6;
+        let isRunning = false;
+        let simTime = 0;
+        let timerInterval = null;
+        let selectedFloor2D = 4; // Default focus floor
+
+        // Canvas Setup
+        const canvas3D = document.getElementById('canvas-3d');
+        const ctx3D = canvas3D.getContext('2d');
+        const canvas2D = document.getElementById('canvas-2d');
+        const ctx2D = canvas2D.getContext('2d');
+
+        function resizeCanvases() {
+            const container3D = canvas3D.parentElement;
+            canvas3D.width = container3D.clientWidth;
+            canvas3D.height = container3D.clientHeight;
+
+            const container2D = canvas2D.parentElement;
+            canvas2D.width = container2D.clientWidth;
+            canvas2D.height = container2D.clientHeight;
+        }
+        window.addEventListener('resize', resizeCanvases);
+
+        // Simulation State
+        let config = {
+            occupantCount: 30,
+            fireFloor: 4,
+            smokeEnabled: true,
+            liftSpeed: 2
+        };
+
+        let occupants = [];
+        let firefighters = [];
+        let elevator = {
+            currentFloor: 1,
+            targetFloor: 4,
+            posY: 1, // continuous for animation
+            status: 'IDLE', // IDLE, ASCENDING, DISPATCHED
+            doorOpen: false
+        };
+
+        let smokeLevels = {}; // floor -> density (0.0 to 1.0)
+        for (let i = 1; i <= TOTAL_FLOORS; i++) smokeLevels[i] = 0;
+
+        // Initialize UI Elements
+        const occupantsSlider = document.getElementById('param-occupants');
+        const fireFloorSlider = document.getElementById('param-fire-floor');
+        const smokeSelect = document.getElementById('param-smoke');
+        const liftSpeedSlider = document.getElementById('param-lift-speed');
+        const btnStart = document.getElementById('btn-start');
+        const btnReset = document.getElementById('btn-reset');
+        const floorButtonsContainer = document.getElementById('floor-buttons');
+
+        function setupFloorButtons() {
+            floorButtonsContainer.innerHTML = '';
+            for (let i = TOTAL_FLOORS; i >= 1; i--) {
+                const btn = document.createElement('button');
+                btn.className = `floor-btn ${i === selectedFloor2D ? 'active' : ''}`;
+                btn.innerText = `L${i}`;
+                btn.onclick = () => {
+                    selectedFloor2D = i;
+                    document.querySelectorAll('.floor-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                };
+                floorButtonsContainer.appendChild(btn);
+            }
+        }
+
+        occupantsSlider.oninput = (e) => {
+            document.getElementById('val-occupants').innerText = e.target.value;
+            config.occupantCount = parseInt(e.target.value);
+            if (!isRunning) initSimulation();
+        };
+
+        fireFloorSlider.oninput = (e) => {
+            document.getElementById('val-fire-floor').innerText = `Lantai ${e.target.value}`;
+            config.fireFloor = parseInt(e.target.value);
+            if (!isRunning) initSimulation();
+        };
+
+        smokeSelect.onchange = (e) => {
+            config.smokeEnabled = e.target.value === 'true';
+        };
+
+        liftSpeedSlider.oninput = (e) => {
+            config.liftSpeed = parseFloat(e.target.value);
+        };
+
+        btnStart.onclick = () => {
+            isRunning = !isRunning;
+            if (isRunning) {
+                btnStart.innerText = 'Pause Simulasi';
+                btnStart.style.backgroundColor = '#eab308';
+                document.getElementById('sim-status').innerText = 'Status: Running';
+                document.getElementById('sim-status').style.color = '#38bdf8';
+            } else {
+                btnStart.innerText = 'Lanjutkan Simulasi';
+                btnStart.style.backgroundColor = '#0284c7';
+                document.getElementById('sim-status').innerText = 'Status: Paused';
+                document.getElementById('sim-status').style.color = '#eab308';
+            }
+        };
+
+        btnReset.onclick = () => {
+            isRunning = false;
+            btnStart.innerText = 'Mulai Simulasi';
+            btnStart.style.backgroundColor = '#0284c7';
+            document.getElementById('sim-status').innerText = 'Status: Ready';
+            document.getElementById('sim-status').style.color = '#10b981';
+            simTime = 0;
+            initSimulation();
+        };
+
+        // Initialize Agents
+        class Occupant {
+            constructor(id) {
+                this.id = id;
+                // Assign randomly to floors 2 to TOTAL_FLOORS
+                this.floor = Math.floor(Math.random() * (TOTAL_FLOORS - 1)) + 2;
+                // Position X inside room: 0.2 (near stairs) to 0.8 (near lift)
+                this.x = 0.3 + Math.random() * 0.5;
+                this.state = 'WALKING_TO_STAIRS'; // WALKING_TO_STAIRS, DESCENDING, EVACUATED, INCAPACITATED
+                this.speed = 0.003 + Math.random() * 0.002;
+                this.health = 100;
+                this.stairProgress = 0; // 0 to 1 when going down floor
+            }
+
+            update() {
+                if (this.state === 'EVACUATED' || this.state === 'INCAPACITATED') return;
+
+                // Smoke impact
+                let localSmoke = smokeLevels[this.floor] || 0;
+                let currentSpeed = this.speed;
+
+                if (config.smokeEnabled && localSmoke > 0.1) {
+                    currentSpeed *= Math.max(0.2, 1 - localSmoke * 0.7);
+                    this.health -= localSmoke * 0.15;
+                    if (this.health <= 0) {
+                        this.state = 'INCAPACITATED';
+                        return;
+                    }
+                }
+
+                if (this.state === 'WALKING_TO_STAIRS') {
+                    // Move left towards stairs (x = 0.15)
+                    if (this.x > 0.15) {
+                        this.x -= currentSpeed;
+                    } else {
+                        this.state = 'DESCENDING';
+                        this.stairProgress = 0;
+                    }
+                } else if (this.state === 'DESCENDING') {
+                    this.stairProgress += currentSpeed * 2.5;
+                    if (this.stairProgress >= 1) {
+                        this.floor -= 1;
+                        this.stairProgress = 0;
+                        if (this.floor === 1) {
+                            this.state = 'EVACUATED';
+                            this.x = 0.05; // Outside exit
+                        }
+                    }
+                }
+            }
+        }
+
+        class Firefighter {
+            constructor() {
+                this.floor = 1;
+                this.x = 0.85; // Near elevator
+                this.state = 'WAITING_LIFT'; // WAITING_LIFT, IN_LIFT, FIGHTING_FIRE
+                this.speed = 0.004;
+            }
+
+            update() {
+                if (this.state === 'WAITING_LIFT') {
+                    if (elevator.currentFloor === 1 && elevator.doorOpen) {
+                        this.state = 'IN_LIFT';
+                    }
+                } else if (this.state === 'IN_LIFT') {
+                    this.floor = elevator.posY;
+                    if (elevator.currentFloor === config.fireFloor && elevator.doorOpen) {
+                        this.state = 'FIGHTING_FIRE';
+                        this.floor = config.fireFloor;
+                        this.x = 0.82;
+                    }
+                } else if (this.state === 'FIGHTING_FIRE') {
+                    // Move towards fire source (x = 0.5)
+                    if (this.x > 0.52) {
+                        this.x -= this.speed;
+                    } else {
+                        // Suppress smoke slowly
+                        if (smokeLevels[config.fireFloor] > 0) {
+                            smokeLevels[config.fireFloor] -= 0.002;
+                        }
+                    }
+                }
+            }
+        }
+
+        function initSimulation() {
+            selectedFloor2D = config.fireFloor;
+            setupFloorButtons();
+            
+            occupants = [];
+            for (let i = 0; i < config.occupantCount; i++) {
+                occupants.push(new Occupant(i));
+            }
+
+            firefighters = [new Firefighter(), new Firefighter()];
+
+            elevator = {
+                currentFloor: 1,
+                targetFloor: config.fireFloor,
+                posY: 1,
+                status: 'ASCENDING',
+                doorOpen: false
+            };
+
+            for (let i = 1; i <= TOTAL_FLOORS; i++) {
+                smokeLevels[i] = (i === config.fireFloor) ? 0.3 : 0;
+            }
+
+            updateStats();
+        }
+
+        // Main Simulation Loop
+        function updateSimulation() {
+            if (!isRunning) return;
+
+            simTime += 0.03;
+
+            // Update Smoke Spread
+            if (config.smokeEnabled) {
+                // Fire floor generates smoke
+                if (smokeLevels[config.fireFloor] < 0.95) {
+                    smokeLevels[config.fireFloor] += 0.001;
+                }
+                // Smoke rises up stairs
+                for (let f = config.fireFloor + 1; f <= TOTAL_FLOORS; f++) {
+                    if (smokeLevels[f - 1] > 0.3 && smokeLevels[f] < smokeLevels[f - 1]) {
+                        smokeLevels[f] += 0.0005;
+                    }
+                }
+            }
+
+            // Update Elevator
+            if (elevator.status === 'ASCENDING') {
+                if (elevator.posY < config.fireFloor) {
+                    elevator.posY += 0.01 * config.liftSpeed;
+                    elevator.currentFloor = Math.floor(elevator.posY);
+                } else {
+                    elevator.posY = config.fireFloor;
+                    elevator.currentFloor = config.fireFloor;
+                    elevator.status = 'ARRIVED';
+                    elevator.doorOpen = true;
+                }
+            }
+
+            // Update Agents
+            occupants.forEach(o => o.update());
+            firefighters.forEach(f => f.update());
+
+            updateStats();
+        }
+
+        function updateStats() {
+            document.getElementById('stat-time').innerText = `${simTime.toFixed(1)} s`;
+            document.getElementById('stat-total').innerText = config.occupantCount;
+            
+            const evacuated = occupants.filter(o => o.state === 'EVACUATED').length;
+            const trapped = occupants.filter(o => o.state === 'INCAPACITATED').length;
+            
+            document.getElementById('stat-evacuated').innerText = evacuated;
+            document.getElementById('stat-trapped').innerText = trapped;
+
+            let ffStatusText = 'Di Ground Floor';
+            if (elevator.status === 'ASCENDING') ffStatusText = `Naik Lift (L${elevator.currentFloor})`;
+            else if (elevator.status === 'ARRIVED') ffStatusText = `Tiba di Lantai ${config.fireFloor} (Padamkan Api)`;
+
+            document.getElementById('stat-ff-status').innerText = ffStatusText;
+        }
+
+        // Rendering Isometric 3D View
+        function draw3D() {
+            ctx3D.clearRect(0, 0, canvas3D.width, canvas3D.height);
+
+            const w = canvas3D.width;
+            const h = canvas3D.height;
+            const originX = w / 2 - 40;
+            const originY = h - 80;
+
+            const floorHeight = (h - 140) / TOTAL_FLOORS;
+            const buildingWidth = Math.min(w * 0.5, 240);
+            const buildingDepth = 90;
+
+            // Helper Iso Projection
+            function project(x, y, floor) {
+                // x: 0 to 1, y: 0 to 1
+                let isoX = originX + (x - y) * (buildingWidth * 0.5);
+                let isoY = originY - (floor - 1) * floorHeight - (x + y) * (buildingDepth * 0.3);
+                return { x: isoX, y: isoY };
+            }
+
+            // Draw Floors from Bottom to Top
+            for (let f = 1; f <= TOTAL_FLOORS; f++) {
+                let p1 = project(0, 0, f);
+                let p2 = project(1, 0, f);
+                let p3 = project(1, 1, f);
+                let p4 = project(0, 1, f);
+
+                // Floor Slab
+                ctx3D.beginPath();
+                ctx3D.moveTo(p1.x, p1.y);
+                ctx3D.lineTo(p2.x, p2.y);
+                ctx3D.lineTo(p3.x, p3.y);
+                ctx3D.lineTo(p4.x, p4.y);
+                ctx3D.closePath();
+                ctx3D.fillStyle = f === selectedFloor2D ? '#334155' : '#1e293b';
+                ctx3D.fill();
+                ctx3D.strokeStyle = '#475569';
+                ctx3D.lineWidth = 1;
+                ctx3D.stroke();
+
+                // Floor Label
+                ctx3D.fillStyle = '#94a3b8';
+                ctx3D.font = '10px sans-serif';
+                ctx3D.fillText(`L${f}`, p1.x - 25, p1.y + 4);
+
+                // Smoke effect
+                if (config.smokeEnabled && smokeLevels[f] > 0.05) {
+                    ctx3D.beginPath();
+                    ctx3D.moveTo(p1.x, p1.y);
+                    ctx3D.lineTo(p2.x, p2.y);
+                    ctx3D.lineTo(p3.x, p3.y);
+                    ctx3D.lineTo(p4.x, p4.y);
+                    ctx3D.closePath();
+                    ctx3D.fillStyle = `rgba(148, 163, 184, ${smokeLevels[f] * 0.6})`;
+                    ctx3D.fill();
+                }
+
+                // Fire Icon on Fire Floor
+                if (f === config.fireFloor) {
+                    let pf = project(0.5, 0.5, f);
+                    ctx3D.beginPath();
+                    ctx3D.arc(pf.x, pf.y, 8 + Math.sin(Date.now() * 0.01) * 2, 0, Math.PI * 2);
+                    ctx3D.fillStyle = '#ef4444';
+                    ctx3D.fill();
+                }
+
+                // Stairwell Shaft (Left side)
+                let ps = project(0.1, 0.5, f);
+                ctx3D.fillStyle = '#eab308';
+                ctx3D.fillRect(ps.x - 4, ps.y - 4, 8, 8);
+
+                // Fire Elevator Shaft (Right side)
+                let pe = project(0.9, 0.5, f);
+                ctx3D.strokeStyle = '#06b6d4';
+                ctx3D.strokeRect(pe.x - 6, pe.y - 6, 12, 12);
+            }
+
+            // Draw Elevator Box
+            let peElev = project(0.9, 0.5, elevator.posY);
+            ctx3D.fillStyle = '#06b6d4';
+            ctx3D.fillRect(peElev.x - 5, peElev.y - 5, 10, 10);
+
+            // Draw Agents in 3D
+            occupants.forEach(o => {
+                if (o.state === 'EVACUATED') return;
+                let currentF = o.state === 'DESCENDING' ? o.floor - o.stairProgress : o.floor;
+                let p = project(o.x, 0.5, currentF);
+                ctx3D.beginPath();
+                ctx3D.arc(p.x, p.y, 3.5, 0, Math.PI * 2);
+                ctx3D.fillStyle = o.state === 'INCAPACITATED' ? '#94a3b8' : '#22c55e';
+                ctx3D.fill();
+            });
+
+            firefighters.forEach(f => {
+                let p = project(f.x, 0.5, f.floor);
+                ctx3D.beginPath();
+                ctx3D.arc(p.x, p.y, 4.5, 0, Math.PI * 2);
+                ctx3D.fillStyle = '#3b82f6';
+                ctx3D.fill();
+            });
+        }
+
+        // Rendering 2D Floor Plan View
+        function draw2D() {
+            ctx2D.clearRect(0, 0, canvas2D.width, canvas2D.height);
+
+            const w = canvas2D.width;
+            const h = canvas2D.height;
+            const margin = 40;
+
+            const planW = w - margin * 2;
+            const planH = h - margin * 2;
+
+            // Outer Floor Boundary
+            ctx2D.strokeStyle = '#64748b';
+            ctx2D.lineWidth = 3;
+            ctx2D.strokeRect(margin, margin, planW, planH);
+
+            // Corridor Lines
+            ctx2D.strokeStyle = '#334155';
+            ctx2D.lineWidth = 1;
+            ctx2D.beginPath();
+            ctx2D.moveTo(margin, margin + planH * 0.3);
+            ctx2D.lineTo(margin + planW, margin + planH * 0.3);
+            ctx2D.moveTo(margin, margin + planH * 0.7);
+            ctx2D.lineTo(margin + planW, margin + planH * 0.7);
+            ctx2D.stroke();
+
+            // Stairwell (Left Box)
+            ctx2D.fillStyle = 'rgba(234, 179, 8, 0.2)';
+            ctx2D.fillRect(margin, margin, planW * 0.2, planH);
+            ctx2D.strokeStyle = '#eab308';
+            ctx2D.strokeRect(margin, margin, planW * 0.2, planH);
+            ctx2D.fillStyle = '#eab308';
+            ctx2D.font = '12px sans-serif';
+            ctx2D.fillText('Tangga Darurat', margin + 10, margin + 25);
+
+            // Fire Elevator Shaft (Right Box)
+            ctx2D.fillStyle = 'rgba(6, 182, 212, 0.2)';
+            ctx2D.fillRect(margin + planW * 0.8, margin, planW * 0.2, planH);
+            ctx2D.strokeStyle = '#06b6d4';
+            ctx2D.strokeRect(margin + planW * 0.8, margin, planW * 0.2, planH);
+            ctx2D.fillStyle = '#06b6d4';
+            ctx2D.fillText('Lift Kebakaran', margin + planW * 0.8 + 10, margin + 25);
+
+            // Smoke Overlay 2D
+            let sLevel = smokeLevels[selectedFloor2D] || 0;
+            if (config.smokeEnabled && sLevel > 0.02) {
+                ctx2D.fillStyle = `rgba(148, 163, 184, ${sLevel * 0.75})`;
+                ctx2D.fillRect(margin, margin, planW, planH);
+            }
+
+            // Fire Source if on selected floor
+            if (selectedFloor2D === config.fireFloor) {
+                ctx2D.beginPath();
+                ctx2D.arc(margin + planW * 0.5, margin + planH * 0.5, 20 + Math.sin(Date.now() * 0.01) * 4, 0, Math.PI * 2);
+                ctx2D.fillStyle = 'rgba(239, 68, 68, 0.4)';
+                ctx2D.fill();
+
+                ctx2D.beginPath();
+                ctx2D.arc(margin + planW * 0.5, margin + planH * 0.5, 10, 0, Math.PI * 2);
+                ctx2D.fillStyle = '#ef4444';
+                ctx2D.fill();
+                ctx2D.fillStyle = '#ffffff';
+                ctx2D.font = 'bold 10px sans-serif';
+                ctx2D.fillText('TITIKS API', margin + planW * 0.5 - 24, margin + planH * 0.5 - 15);
+            }
+
+            // Draw Agents on Selected Floor
+            occupants.forEach(o => {
+                if (Math.floor(o.floor) === selectedFloor2D && o.state !== 'EVACUATED') {
+                    let agentX = margin + o.x * planW;
+                    let agentY = margin + planH * 0.5 + (Math.sin(o.id) * planH * 0.15);
+
+                    ctx2D.beginPath();
+                    ctx2D.arc(agentX, agentY, 6, 0, Math.PI * 2);
+                    ctx2D.fillStyle = o.state === 'INCAPACITATED' ? '#64748b' : '#22c55e';
+                    ctx2D.fill();
+                    ctx2D.strokeStyle = '#ffffff';
+                    ctx2D.lineWidth = 1;
+                    ctx2D.stroke();
+                }
+            });
+
+            firefighters.forEach(f => {
+                if (Math.floor(f.floor) === selectedFloor2D) {
+                    let agentX = margin + f.x * planW;
+                    let agentY = margin + planH * 0.5;
+
+                    ctx2D.beginPath();
+                    ctx2D.arc(agentX, agentY, 8, 0, Math.PI * 2);
+                    ctx2D.fillStyle = '#3b82f6';
+                    ctx2D.fill();
+                    ctx2D.strokeStyle = '#ffffff';
+                    ctx2D.lineWidth = 1.5;
+                    ctx2D.stroke();
+                }
+            });
+        }
+
+        // Loop Setup
+        function loop() {
+            updateSimulation();
+            draw3D();
+            draw2D();
+            requestAnimationFrame(loop);
+        }
+
+        // Start Init
+        resizeCanvases();
+        initSimulation();
+        requestAnimationFrame(loop);
+
+    </script>
+</body>
+</html>
