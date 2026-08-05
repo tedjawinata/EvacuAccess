@@ -3,19 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulasi ABM Evakuasi Kebakaran Gedung</title>
+    <title>Simulasi ABM Evakuasi Kebakaran</title>
     <style>
         :root {
-            --bg-color: #0f172a;
-            --panel-bg: #1e293b;
-            --accent-color: #38bdf8;
-            --text-color: #f8fafc;
-            --text-muted: #94a3b8;
-            --border-color: #334155;
-            --occupant-color: #22c55e;
-            --firefighter-color: #3b82f6;
+            --bg-color: #000000;
+            --panel-bg: #0a0a0a;
+            --accent-color: #3b9c5d;
+            --text-color: #ffffff;
+            --text-muted: #a1a1aa;
+            --border-color: #27272a;
+            --occupant-color: #44885d;
+            --firefighter-color: #a18425;
             --fire-color: #ef4444;
-            --smoke-color: rgba(148, 163, 184, 0.6);
         }
 
         * {
@@ -51,41 +50,43 @@
             gap: 10px;
         }
 
-        .badge {
-            background-color: rgba(56, 189, 248, 0.2);
-            color: var(--accent-color);
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
         .main-container {
             display: flex;
             flex: 1;
             overflow: hidden;
+            background-color: #000000;
         }
 
         /* Controls Sidebar */
         .sidebar {
-            width: 320px;
+            width: 330px;
             background-color: var(--panel-bg);
             border-right: 1px solid var(--border-color);
-            padding: 20px;
+            padding: 16px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 14px;
             overflow-y: auto;
+        }
+
+        .section-title {
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: var(--accent-color);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .control-group {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
         }
 
         .control-group label {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--text-muted);
             display: flex;
             justify-content: space-between;
@@ -102,14 +103,40 @@
         }
 
         select, button {
-            background-color: #0f172a;
+            background-color: #000000;
             color: var(--text-color);
             border: 1px solid var(--border-color);
-            padding: 10px;
+            padding: 8px 12px;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             transition: all 0.2s;
+        }
+
+        /* Tool Buttons Grid */
+        .tools-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .tool-btn {
+            background-color: #18181b;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 8px;
+        }
+
+        .tool-btn.active {
+            background-color: rgba(56, 189, 248, 0.2);
+            border-color: var(--accent-color);
+            color: var(--text-color);
+            font-weight: bold;
         }
 
         button.btn-primary {
@@ -124,18 +151,14 @@
         }
 
         button.btn-reset {
-            background-color: #475569;
-            border-color: #475569;
-            color: white;
-        }
-
-        button.btn-reset:hover {
-            background-color: #334155;
+            background-color: #18181b;
+            border-color: #27272a;
+            color: #e4e4e7;
         }
 
         .btn-group {
             display: flex;
-            gap: 10px;
+            gap: 8px;
         }
 
         .btn-group button {
@@ -143,54 +166,32 @@
         }
 
         .stats-panel {
-            background-color: #0f172a;
+            background-color: #000000;
             border: 1px solid var(--border-color);
             border-radius: 6px;
-            padding: 15px;
+            padding: 12px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
         }
 
         .stat-item {
             display: flex;
             justify-content: space-between;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
         }
 
         .stat-item .value {
             font-weight: bold;
         }
 
-        .legend {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            font-size: 0.8rem;
-            margin-top: 10px;
-            border-top: 1px solid var(--border-color);
-            padding-top: 10px;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .legend-color {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-        }
-
         /* Viewport Area */
         .viewport-container {
             flex: 1;
             display: flex;
-            gap: 10px;
+            gap: 12px;
             padding: 15px;
-            background-color: #020617;
+            background-color: #000000;
         }
 
         .view-card {
@@ -205,14 +206,15 @@
         }
 
         .view-header {
-            background-color: rgba(15, 23, 42, 0.8);
+            background-color: rgba(10, 10, 10, 0.9);
             padding: 10px 15px;
             border-bottom: 1px solid var(--border-color);
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 600;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            z-index: 5;
         }
 
         .view-canvas-container {
@@ -220,6 +222,7 @@
             position: relative;
             width: 100%;
             height: 100%;
+            background-color: #000000;
         }
 
         canvas {
@@ -232,19 +235,22 @@
 
         .floor-selector {
             display: flex;
-            gap: 5px;
+            gap: 4px;
         }
 
         .floor-btn {
             padding: 2px 8px;
             font-size: 0.75rem;
             border-radius: 4px;
-            background-color: #0f172a;
+            background-color: #18181b;
+            border: 1px solid #27272a;
+            color: #a1a1aa;
         }
 
         .floor-btn.active {
             background-color: var(--accent-color);
-            color: #0f172a;
+            color: #000000;
+            border-color: var(--accent-color);
             font-weight: bold;
         }
     </style>
@@ -252,21 +258,34 @@
 <body>
 
     <header>
-        <h1>Simulasi ABM Evakuasi Gedung & Intervensi Pemadam <span class="badge">Dual-View Architecture</span></h1>
-        <div id="sim-status" style="font-size: 0.85rem; color: #10b981; font-weight: bold;">Status: Ready</div>
+        <h1>Simulasi ABM Evakuasi Gedung</h1>
+        <div id="sim-status" style="font-size: 0.85rem; color: #22c55e; font-weight: bold;">Status: Siap</div>
     </header>
 
     <div class="main-container">
         <!-- Sidebar Controls -->
         <div class="sidebar">
+            <!-- Mode Editor / Tools -->
+            <div class="section-title">Tools Editor Denah (2D)</div>
+            <div class="tools-grid">
+                <button class="tool-btn active" id="tool-select" onclick="setTool('SELECT')">👆 Pilih / Nav</button>
+                <button class="tool-btn" id="tool-wall" onclick="setTool('WALL')">🧱 Gambar Dinding</button>
+                <button class="tool-btn" id="tool-fire" onclick="setTool('FIRE')">🔥 Titik Api</button>
+                <button class="tool-btn" id="tool-erase" onclick="setTool('ERASE')">🧹 Hapus Dinding</button>
+            </div>
+            <button class="tool-btn" style="width: 100%;" onclick="clearCurrentFloorWalls()">🗑️ Bersihkan Semua Dinding Lantai Ini</button>
+
+            <!-- Parameter Simulasi -->
+            <div class="section-title">Parameter Simulasi</div>
+            
             <div class="control-group">
                 <label>Jumlah Penghuni: <span class="val" id="val-occupants">30</span></label>
-                <input type="range" id="param-occupants" min="10" max="80" value="30">
+                <input type="range" id="param-occupants" min="5" max="100" value="30">
             </div>
 
             <div class="control-group">
                 <label>Lantai Titik Api: <span class="val" id="val-fire-floor">Lantai 4</span></label>
-                <input type="range" id="param-fire-floor" min="2" max="6" value="4">
+                <input type="range" id="param-fire-floor" min="1" max="6" value="4">
             </div>
 
             <div class="control-group">
@@ -289,7 +308,7 @@
 
             <!-- Stats Panel -->
             <div class="stats-panel">
-                <div style="font-weight: bold; margin-bottom: 5px; color: var(--accent-color);">Statistik Real-Time</div>
+                <div style="font-weight: bold; margin-bottom: 2px; color: var(--accent-color);">Statistik Real-Time</div>
                 <div class="stat-item">
                     <span>Waktu Simulasi:</span>
                     <span class="value" id="stat-time">00:00 s</span>
@@ -311,44 +330,14 @@
                     <span class="value" style="color: #3b82f6;" id="stat-ff-status">Menunggu</span>
                 </div>
             </div>
-
-            <!-- Legend -->
-            <div class="legend">
-                <div style="font-weight: bold; margin-bottom: 4px;">Keterangan Simbol:</div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background-color: #22c55e;"></div>
-                    <span>Penghuni Gedung (Evakuasi via Tangga)</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background-color: #3b82f6;"></div>
-                    <span>Pemadam Kebakaran (Naik via Lift)</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background-color: #ef4444;"></div>
-                    <span>Sumber Api</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background-color: rgba(148, 163, 184, 0.8);"></div>
-                    <span>Area Asap / Asap Pekat</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background-color: #eab308;"></div>
-                    <span>Tangga Darurat (Sisi Kiri)</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background-color: #06b6d4;"></div>
-                    <span>Lift Kebakaran (Sisi Kanan)</span>
-                </div>
-            </div>
         </div>
 
         <!-- Viewports -->
         <div class="viewport-container">
-            <!-- View 1: Axonometric 3D -->
+            <!-- View 1: 3D Isometric View -->
             <div class="view-card">
                 <div class="view-header">
-                    <span>Proyeksi Aksonometri Vertikal Gedung</span>
-                    <span style="font-size: 0.75rem; color: var(--text-muted);">6-Floor Isometric View</span>
+                    <span>Proyeksi Aksonometri Gedung (3D)</span>
                 </div>
                 <div class="view-canvas-container">
                     <canvas id="canvas-3d"></canvas>
@@ -358,9 +347,9 @@
             <!-- View 2: Floor Plan 2D -->
             <div class="view-card">
                 <div class="view-header">
-                    <span>Denah Lantai 2D (Floor Plan)</span>
+                    <span>Denah Lantai 2D (Editor & Physics Pathing)</span>
                     <div class="floor-selector" id="floor-buttons">
-                        <!-- Buttons dynamic -->
+                        <!-- Dynamic Floor Buttons -->
                     </div>
                 </div>
                 <div class="view-canvas-container">
@@ -371,52 +360,277 @@
     </div>
 
     <script>
-        // Simulation Configuration
+        // --- CONFIG & GLOBAL STATE ---
         const TOTAL_FLOORS = 6;
         let isRunning = false;
         let simTime = 0;
-        let timerInterval = null;
-        let selectedFloor2D = 4; // Default focus floor
+        let selectedFloor2D = 4;
+        let activeTool = 'SELECT'; 
 
-        // Canvas Setup
-        const canvas3D = document.getElementById('canvas-3d');
-        const ctx3D = canvas3D.getContext('2d');
-        const canvas2D = document.getElementById('canvas-2d');
-        const ctx2D = canvas2D.getContext('2d');
-
-        function resizeCanvases() {
-            const container3D = canvas3D.parentElement;
-            canvas3D.width = container3D.clientWidth;
-            canvas3D.height = container3D.clientHeight;
-
-            const container2D = canvas2D.parentElement;
-            canvas2D.width = container2D.clientWidth;
-            canvas2D.height = container2D.clientHeight;
-        }
-        window.addEventListener('resize', resizeCanvases);
-
-        // Simulation State
         let config = {
             occupantCount: 30,
             fireFloor: 4,
+            fireX: 0.5,
+            fireY: 0.5,
             smokeEnabled: true,
             liftSpeed: 2
         };
 
+        let smokeLevels = {};
+        let wallsPerFloor = {}; 
+        for (let i = 1; i <= TOTAL_FLOORS; i++) {
+            smokeLevels[i] = 0;
+            wallsPerFloor[i] = [];
+        }
+
+        // --- CANVAS SETUP ---
+        const canvas3D = document.getElementById('canvas-3d');
+        const ctx3D = canvas3D.getContext('2d');
+
+        const canvas2D = document.getElementById('canvas-2d');
+        const ctx2D = canvas2D.getContext('2d');
+
+        function resizeCanvases() {
+            [canvas3D, canvas2D].forEach(canvas => {
+                const container = canvas.parentElement;
+                canvas.width = container.clientWidth;
+                canvas.height = container.clientHeight;
+            });
+        }
+        window.addEventListener('resize', resizeCanvases);
+
+        // --- HELPER MATH FUNCTIONS (FOR PHYSICS & STEERING) ---
+        function distToSegmentSquared(p, v, w) {
+            const l2 = (w.x - v.x) ** 2 + (w.y - v.y) ** 2;
+            if (l2 === 0) return (p.x - v.x) ** 2 + (p.y - v.y) ** 2;
+            let t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
+            t = Math.max(0, Math.min(1, t));
+            return (p.x - (v.x + t * (w.x - v.x))) ** 2 + (p.y - (v.y + t * (w.y - v.y))) ** 2;
+        }
+
+        function getClosestPointOnSegment(p, v, w) {
+            const l2 = (w.x - v.x) ** 2 + (w.y - v.y) ** 2;
+            if (l2 === 0) return { x: v.x, y: v.y };
+            let t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
+            t = Math.max(0, Math.min(1, t));
+            return { x: v.x + t * (w.x - v.x), y: v.y + t * (w.y - v.y) };
+        }
+
+        // --- AGENT & OBJECT CLASSES WITH STEERING PHYSICS ---
         let occupants = [];
         let firefighters = [];
-        let elevator = {
-            currentFloor: 1,
-            targetFloor: 4,
-            posY: 1, // continuous for animation
-            status: 'IDLE', // IDLE, ASCENDING, DISPATCHED
-            doorOpen: false
-        };
+        let elevator = { posY: 1, currentFloor: 1, status: 'ASCENDING' };
 
-        let smokeLevels = {}; // floor -> density (0.0 to 1.0)
-        for (let i = 1; i <= TOTAL_FLOORS; i++) smokeLevels[i] = 0;
+        class Occupant {
+            constructor(id, floor, normX, normY) {
+                this.id = id;
+                this.floor = floor;
+                this.x = normX;
+                this.y = normY;
+                this.vx = 0;
+                this.vy = 0;
+                this.state = 'WALKING_TO_STAIRS';
+                this.maxSpeed = 0.003 + Math.random() * 0.0015;
+                this.health = 100;
+                this.stairProgress = 0;
+            }
 
-        // Initialize UI Elements
+            update() {
+                if (this.state === 'EVACUATED' || this.state === 'INCAPACITATED') return;
+
+                let localSmoke = smokeLevels[this.floor] || 0;
+                let currentMaxSpeed = this.maxSpeed;
+
+                if (config.smokeEnabled && localSmoke > 0.1) {
+                    currentMaxSpeed *= Math.max(0.2, 1 - localSmoke * 0.7);
+                    this.health -= localSmoke * 0.15;
+                    if (this.health <= 0) {
+                        this.state = 'Terluka/ Incapacitated';
+                        return;
+                    }
+                }
+
+                if (this.state === 'WALKING_TO_STAIRS') {
+                    // 1. Target Vector (Menuju tangga di X ~ 0.1)
+                    let targetX = 0.1;
+                    let targetY = 0.5; // Koridor tengah tangga
+                    let dx = targetX - this.x;
+                    let dy = targetY - this.y;
+                    let distToTarget = Math.hypot(dx, dy);
+
+                    let desireX = (dx / distToTarget) * currentMaxSpeed;
+                    let desireY = (dy / distToTarget) * currentMaxSpeed;
+
+                    // 2. Repulsive Force dari Dinding Kustom (Obstacle Avoidance Physics)
+                    let avoidX = 0;
+                    let avoidY = 0;
+                    const walls = wallsPerFloor[this.floor] || [];
+
+                    walls.forEach(w => {
+                        const wallStart = { x: w.x1, y: w.y1 };
+                        const wallEnd = { x: w.x2, y: w.y2 };
+                        const closest = getClosestPointOnSegment({ x: this.x, y: this.y }, wallStart, wallEnd);
+
+                        let rx = this.x - closest.x;
+                        let ry = this.y - closest.y;
+                        let rDist = Math.hypot(rx, ry);
+
+                        // Radius deteksi/hindar dinding (misal 0.08 unit)
+                        const avoidRadius = 0.08;
+                        if (rDist < avoidRadius && rDist > 0) {
+                            let force = (avoidRadius - rDist) / avoidRadius;
+                            avoidX += (rx / rDist) * force * 0.005;
+                            avoidY += (ry / rDist) * force * 0.005;
+                        }
+                    });
+
+                    // 3. Batas Ruangan Gedung (Batas Atas / Bawah)
+                    if (this.y < 0.05) avoidY += 0.002;
+                    if (this.y > 0.95) avoidY -= 0.002;
+
+                    // Gabungkan Vektor Kecepatan
+                    this.vx = desireX + avoidX;
+                    this.vy = desireY + avoidY;
+
+                    // Terapkan Pergerakan Posisi
+                    this.x += this.vx;
+                    this.y += this.vy;
+
+                    // Jika sudah sampai dekat area tangga
+                    if (this.x <= 0.12) {
+                        this.state = 'DESCENDING';
+                        this.stairProgress = 0;
+                    }
+                } else if (this.state === 'DESCENDING') {
+                    this.stairProgress += currentMaxSpeed * 2.5;
+                    if (this.stairProgress >= 1) {
+                        this.floor -= 1;
+                        this.stairProgress = 0;
+                        if (this.floor === 1) {
+                            this.state = 'EVACUATED';
+                            this.x = 0.05;
+                        }
+                    }
+                }
+            }
+        }
+
+        class Firefighter {
+            constructor() {
+                this.floor = 1;
+                this.x = 0.85;
+                this.y = 0.5;
+                this.state = 'WAITING_LIFT';
+                this.speed = 0.004;
+            }
+
+            update() {
+                if (this.state === 'WAITING_LIFT') {
+                    if (elevator.currentFloor === 1) {
+                        this.state = 'IN_LIFT';
+                    }
+                } else if (this.state === 'IN_LIFT') {
+                    this.floor = elevator.posY;
+                    if (elevator.currentFloor === config.fireFloor) {
+                        this.state = 'FIGHTING_FIRE';
+                        this.floor = config.fireFloor;
+                        this.x = 0.82;
+                    }
+                } else if (this.state === 'FIGHTING_FIRE') {
+                    if (this.x > config.fireX) {
+                        this.x -= this.speed;
+                    } else {
+                        if (smokeLevels[config.fireFloor] > 0) {
+                            smokeLevels[config.fireFloor] -= 0.002;
+                        }
+                    }
+                }
+            }
+        }
+
+        // --- TOOLBAR & EDITOR LOGIC ---
+        function setTool(toolName) {
+            activeTool = toolName;
+            document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active'));
+            const btnId = `tool-${toolName.toLowerCase()}`;
+            if(document.getElementById(btnId)) {
+                document.getElementById(btnId).classList.add('active');
+            }
+        }
+
+        function clearCurrentFloorWalls() {
+            wallsPerFloor[selectedFloor2D] = [];
+        }
+
+        // Interaksi Menggambar pada Canvas 2D
+        let isDrawingWall = false;
+        let wallStart = { x: 0, y: 0 };
+        let currentMousePos = { x: 0, y: 0 };
+
+        function getNormalized2DCoords(e) {
+            const rect = canvas2D.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            const margin = 40;
+            const planW = canvas2D.width - margin * 2;
+            const planH = canvas2D.height - margin * 2;
+
+            const normX = Math.max(0, Math.min(1, (mouseX - margin) / planW));
+            const normY = Math.max(0, Math.min(1, (mouseY - margin) / planH));
+
+            return { normX, normY };
+        }
+
+        canvas2D.addEventListener('mousedown', (e) => {
+            const { normX, normY } = getNormalized2DCoords(e);
+
+            if (activeTool === 'WALL') {
+                isDrawingWall = true;
+                wallStart = { x: normX, y: normY };
+            } else if (activeTool === 'FIRE') {
+                config.fireFloor = selectedFloor2D;
+                config.fireX = normX;
+                config.fireY = normY;
+                document.getElementById('param-fire-floor').value = config.fireFloor;
+                document.getElementById('val-fire-floor').innerText = `Lantai ${config.fireFloor}`;
+            } else if (activeTool === 'ERASE') {
+                wallsPerFloor[selectedFloor2D] = wallsPerFloor[selectedFloor2D].filter(w => {
+                    const midX = (w.x1 + w.x2) / 2;
+                    const midY = (w.y1 + w.y2) / 2;
+                    return Math.hypot(midX - normX, midY - normY) > 0.08;
+                });
+            }
+        });
+
+        canvas2D.addEventListener('mousemove', (e) => {
+            const { normX, normY } = getNormalized2DCoords(e);
+            currentMousePos = { x: normX, y: normY };
+        });
+
+        canvas2D.addEventListener('mouseup', (e) => {
+            if (isDrawingWall && activeTool === 'WALL') {
+                const { normX, normY } = getNormalized2DCoords(e);
+                if (Math.hypot(normX - wallStart.x, normY - wallStart.y) > 0.02) {
+                    wallsPerFloor[selectedFloor2D].push({
+                        x1: wallStart.x, y1: wallStart.y,
+                        x2: normX, y2: normY
+                    });
+                }
+                isDrawingWall = false;
+            }
+        });
+
+        // Inisialisasi Penghuni Berdasarkan Slider
+        function generateOccupantsFromSlider() {
+            occupants = [];
+            for (let i = 0; i < config.occupantCount; i++) {
+                const floor = Math.floor(Math.random() * (TOTAL_FLOORS - 1)) + 2;
+                occupants.push(new Occupant(i, floor, 0.3 + Math.random() * 0.4, 0.1 + Math.random() * 0.8));
+            }
+        }
+
+        // --- UI CONTROLS & EVENTS ---
         const occupantsSlider = document.getElementById('param-occupants');
         const fireFloorSlider = document.getElementById('param-fire-floor');
         const smokeSelect = document.getElementById('param-smoke');
@@ -424,6 +638,15 @@
         const btnStart = document.getElementById('btn-start');
         const btnReset = document.getElementById('btn-reset');
         const floorButtonsContainer = document.getElementById('floor-buttons');
+
+        occupantsSlider.oninput = (e) => {
+            document.getElementById('val-occupants').innerText = e.target.value;
+            config.occupantCount = parseInt(e.target.value);
+            if (!isRunning) {
+                generateOccupantsFromSlider();
+                updateStats();
+            }
+        };
 
         function setupFloorButtons() {
             floorButtonsContainer.innerHTML = '';
@@ -439,12 +662,6 @@
                 floorButtonsContainer.appendChild(btn);
             }
         }
-
-        occupantsSlider.oninput = (e) => {
-            document.getElementById('val-occupants').innerText = e.target.value;
-            config.occupantCount = parseInt(e.target.value);
-            if (!isRunning) initSimulation();
-        };
 
         fireFloorSlider.oninput = (e) => {
             document.getElementById('val-fire-floor').innerText = `Lantai ${e.target.value}`;
@@ -465,12 +682,14 @@
             if (isRunning) {
                 btnStart.innerText = 'Pause Simulasi';
                 btnStart.style.backgroundColor = '#eab308';
-                document.getElementById('sim-status').innerText = 'Status: Running';
+                btnStart.style.borderColor = '#eab308';
+                document.getElementById('sim-status').innerText = 'Status: Berjalan';
                 document.getElementById('sim-status').style.color = '#38bdf8';
             } else {
                 btnStart.innerText = 'Lanjutkan Simulasi';
                 btnStart.style.backgroundColor = '#0284c7';
-                document.getElementById('sim-status').innerText = 'Status: Paused';
+                btnStart.style.borderColor = '#0284c7';
+                document.getElementById('sim-status').innerText = 'Status: Dihentikan';
                 document.getElementById('sim-status').style.color = '#eab308';
             }
         };
@@ -479,115 +698,23 @@
             isRunning = false;
             btnStart.innerText = 'Mulai Simulasi';
             btnStart.style.backgroundColor = '#0284c7';
-            document.getElementById('sim-status').innerText = 'Status: Ready';
-            document.getElementById('sim-status').style.color = '#10b981';
+            btnStart.style.borderColor = '#0284c7';
+            document.getElementById('sim-status').innerText = 'Status: Siap';
+            document.getElementById('sim-status').style.color = '#22c55e';
             simTime = 0;
             initSimulation();
         };
 
-        // Initialize Agents
-        class Occupant {
-            constructor(id) {
-                this.id = id;
-                // Assign randomly to floors 2 to TOTAL_FLOORS
-                this.floor = Math.floor(Math.random() * (TOTAL_FLOORS - 1)) + 2;
-                // Position X inside room: 0.2 (near stairs) to 0.8 (near lift)
-                this.x = 0.3 + Math.random() * 0.5;
-                this.state = 'WALKING_TO_STAIRS'; // WALKING_TO_STAIRS, DESCENDING, EVACUATED, INCAPACITATED
-                this.speed = 0.003 + Math.random() * 0.002;
-                this.health = 100;
-                this.stairProgress = 0; // 0 to 1 when going down floor
-            }
-
-            update() {
-                if (this.state === 'EVACUATED' || this.state === 'INCAPACITATED') return;
-
-                // Smoke impact
-                let localSmoke = smokeLevels[this.floor] || 0;
-                let currentSpeed = this.speed;
-
-                if (config.smokeEnabled && localSmoke > 0.1) {
-                    currentSpeed *= Math.max(0.2, 1 - localSmoke * 0.7);
-                    this.health -= localSmoke * 0.15;
-                    if (this.health <= 0) {
-                        this.state = 'INCAPACITATED';
-                        return;
-                    }
-                }
-
-                if (this.state === 'WALKING_TO_STAIRS') {
-                    // Move left towards stairs (x = 0.15)
-                    if (this.x > 0.15) {
-                        this.x -= currentSpeed;
-                    } else {
-                        this.state = 'DESCENDING';
-                        this.stairProgress = 0;
-                    }
-                } else if (this.state === 'DESCENDING') {
-                    this.stairProgress += currentSpeed * 2.5;
-                    if (this.stairProgress >= 1) {
-                        this.floor -= 1;
-                        this.stairProgress = 0;
-                        if (this.floor === 1) {
-                            this.state = 'EVACUATED';
-                            this.x = 0.05; // Outside exit
-                        }
-                    }
-                }
-            }
-        }
-
-        class Firefighter {
-            constructor() {
-                this.floor = 1;
-                this.x = 0.85; // Near elevator
-                this.state = 'WAITING_LIFT'; // WAITING_LIFT, IN_LIFT, FIGHTING_FIRE
-                this.speed = 0.004;
-            }
-
-            update() {
-                if (this.state === 'WAITING_LIFT') {
-                    if (elevator.currentFloor === 1 && elevator.doorOpen) {
-                        this.state = 'IN_LIFT';
-                    }
-                } else if (this.state === 'IN_LIFT') {
-                    this.floor = elevator.posY;
-                    if (elevator.currentFloor === config.fireFloor && elevator.doorOpen) {
-                        this.state = 'FIGHTING_FIRE';
-                        this.floor = config.fireFloor;
-                        this.x = 0.82;
-                    }
-                } else if (this.state === 'FIGHTING_FIRE') {
-                    // Move towards fire source (x = 0.5)
-                    if (this.x > 0.52) {
-                        this.x -= this.speed;
-                    } else {
-                        // Suppress smoke slowly
-                        if (smokeLevels[config.fireFloor] > 0) {
-                            smokeLevels[config.fireFloor] -= 0.002;
-                        }
-                    }
-                }
-            }
-        }
-
         function initSimulation() {
-            selectedFloor2D = config.fireFloor;
             setupFloorButtons();
-            
-            occupants = [];
-            for (let i = 0; i < config.occupantCount; i++) {
-                occupants.push(new Occupant(i));
-            }
+            generateOccupantsFromSlider();
 
             firefighters = [new Firefighter(), new Firefighter()];
 
             elevator = {
-                currentFloor: 1,
-                targetFloor: config.fireFloor,
                 posY: 1,
-                status: 'ASCENDING',
-                doorOpen: false
+                currentFloor: 1,
+                status: 'ASCENDING'
             };
 
             for (let i = 1; i <= TOTAL_FLOORS; i++) {
@@ -597,19 +724,15 @@
             updateStats();
         }
 
-        // Main Simulation Loop
         function updateSimulation() {
             if (!isRunning) return;
 
             simTime += 0.03;
 
-            // Update Smoke Spread
             if (config.smokeEnabled) {
-                // Fire floor generates smoke
                 if (smokeLevels[config.fireFloor] < 0.95) {
                     smokeLevels[config.fireFloor] += 0.001;
                 }
-                // Smoke rises up stairs
                 for (let f = config.fireFloor + 1; f <= TOTAL_FLOORS; f++) {
                     if (smokeLevels[f - 1] > 0.3 && smokeLevels[f] < smokeLevels[f - 1]) {
                         smokeLevels[f] += 0.0005;
@@ -617,7 +740,6 @@
                 }
             }
 
-            // Update Elevator
             if (elevator.status === 'ASCENDING') {
                 if (elevator.posY < config.fireFloor) {
                     elevator.posY += 0.01 * config.liftSpeed;
@@ -626,11 +748,9 @@
                     elevator.posY = config.fireFloor;
                     elevator.currentFloor = config.fireFloor;
                     elevator.status = 'ARRIVED';
-                    elevator.doorOpen = true;
                 }
             }
 
-            // Update Agents
             occupants.forEach(o => o.update());
             firefighters.forEach(f => f.update());
 
@@ -640,198 +760,221 @@
         function updateStats() {
             document.getElementById('stat-time').innerText = `${simTime.toFixed(1)} s`;
             document.getElementById('stat-total').innerText = config.occupantCount;
-            
+
             const evacuated = occupants.filter(o => o.state === 'EVACUATED').length;
             const trapped = occupants.filter(o => o.state === 'INCAPACITATED').length;
-            
+
             document.getElementById('stat-evacuated').innerText = evacuated;
             document.getElementById('stat-trapped').innerText = trapped;
 
             let ffStatusText = 'Di Ground Floor';
             if (elevator.status === 'ASCENDING') ffStatusText = `Naik Lift (L${elevator.currentFloor})`;
-            else if (elevator.status === 'ARRIVED') ffStatusText = `Tiba di Lantai ${config.fireFloor} (Padamkan Api)`;
+            else if (elevator.status === 'ARRIVED') ffStatusText = `Tiba di Lantai ${config.fireFloor}`;
 
             document.getElementById('stat-ff-status').innerText = ffStatusText;
         }
 
-        // Rendering Isometric 3D View
+        // --- RENDER 3D ISOMETRIC VIEW ---
+        function project3D(x, y, floor, w, h) {
+            const floorSpacing = h * 0.11;
+            const startX = w * 0.25;
+            const startY = h * 0.85;
+
+            const px = startX + (x - y) * w * 0.3;
+            const py = startY - (x + y) * w * 0.15 - (floor - 1) * floorSpacing;
+
+            return { x: px, y: py };
+        }
+
         function draw3D() {
-            ctx3D.clearRect(0, 0, canvas3D.width, canvas3D.height);
+            ctx3D.fillStyle = '#000000';
+            ctx3D.fillRect(0, 0, canvas3D.width, canvas3D.height);
 
             const w = canvas3D.width;
             const h = canvas3D.height;
-            const originX = w / 2 - 40;
-            const originY = h - 80;
 
-            const floorHeight = (h - 140) / TOTAL_FLOORS;
-            const buildingWidth = Math.min(w * 0.5, 240);
-            const buildingDepth = 90;
-
-            // Helper Iso Projection
-            function project(x, y, floor) {
-                // x: 0 to 1, y: 0 to 1
-                let isoX = originX + (x - y) * (buildingWidth * 0.5);
-                let isoY = originY - (floor - 1) * floorHeight - (x + y) * (buildingDepth * 0.3);
-                return { x: isoX, y: isoY };
-            }
-
-            // Draw Floors from Bottom to Top
             for (let f = 1; f <= TOTAL_FLOORS; f++) {
-                let p1 = project(0, 0, f);
-                let p2 = project(1, 0, f);
-                let p3 = project(1, 1, f);
-                let p4 = project(0, 1, f);
+                const p0 = project3D(0, 0, f, w, h);
+                const p1 = project3D(1, 0, f, w, h);
+                const p2 = project3D(1, 1, f, w, h);
+                const p3 = project3D(0, 1, f, w, h);
 
-                // Floor Slab
+                // Floor Base
                 ctx3D.beginPath();
-                ctx3D.moveTo(p1.x, p1.y);
+                ctx3D.moveTo(p0.x, p0.y);
+                ctx3D.lineTo(p1.x, p1.y);
                 ctx3D.lineTo(p2.x, p2.y);
                 ctx3D.lineTo(p3.x, p3.y);
-                ctx3D.lineTo(p4.x, p4.y);
                 ctx3D.closePath();
-                ctx3D.fillStyle = f === selectedFloor2D ? '#334155' : '#1e293b';
+
+                ctx3D.fillStyle = f === selectedFloor2D ? 'rgba(56, 189, 248, 0.15)' : 'rgba(39, 39, 42, 0.4)';
                 ctx3D.fill();
-                ctx3D.strokeStyle = '#475569';
-                ctx3D.lineWidth = 1;
+                ctx3D.strokeStyle = f === selectedFloor2D ? '#38bdf8' : '#3f3f46';
+                ctx3D.lineWidth = f === selectedFloor2D ? 2 : 1;
                 ctx3D.stroke();
 
-                // Floor Label
-                ctx3D.fillStyle = '#94a3b8';
-                ctx3D.font = '10px sans-serif';
-                ctx3D.fillText(`L${f}`, p1.x - 25, p1.y + 4);
+                ctx3D.fillStyle = '#a1a1aa';
+                ctx3D.font = '11px sans-serif';
+                ctx3D.fillText(`Lantai ${f}`, p0.x - 45, p0.y + 4);
 
-                // Smoke effect
-                if (config.smokeEnabled && smokeLevels[f] > 0.05) {
+                // Render Custom Walls in 3D
+                wallsPerFloor[f].forEach(wall => {
+                    const wp1 = project3D(wall.x1, wall.y1, f, w, h);
+                    const wp2 = project3D(wall.x2, wall.y2, f, w, h);
+
                     ctx3D.beginPath();
-                    ctx3D.moveTo(p1.x, p1.y);
-                    ctx3D.lineTo(p2.x, p2.y);
-                    ctx3D.lineTo(p3.x, p3.y);
-                    ctx3D.lineTo(p4.x, p4.y);
-                    ctx3D.closePath();
-                    ctx3D.fillStyle = `rgba(148, 163, 184, ${smokeLevels[f] * 0.6})`;
+                    ctx3D.moveTo(wp1.x, wp1.y);
+                    ctx3D.lineTo(wp2.x, wp2.y);
+                    ctx3D.strokeStyle = '#f43f5e';
+                    ctx3D.lineWidth = 2;
+                    ctx3D.stroke();
+                });
+
+                // Smoke overlay
+                let sLevel = smokeLevels[f] || 0;
+                if (config.smokeEnabled && sLevel > 0.05) {
+                    ctx3D.fillStyle = `rgba(161, 161, 170, ${sLevel * 0.6})`;
                     ctx3D.fill();
                 }
 
-                // Fire Icon on Fire Floor
+                // Fire source
                 if (f === config.fireFloor) {
-                    let pf = project(0.5, 0.5, f);
+                    const fireP = project3D(config.fireX, config.fireY, f, w, h);
                     ctx3D.beginPath();
-                    ctx3D.arc(pf.x, pf.y, 8 + Math.sin(Date.now() * 0.01) * 2, 0, Math.PI * 2);
+                    ctx3D.arc(fireP.x, fireP.y, 8 + Math.sin(Date.now() * 0.01) * 2, 0, Math.PI * 2);
                     ctx3D.fillStyle = '#ef4444';
                     ctx3D.fill();
                 }
-
-                // Stairwell Shaft (Left side)
-                let ps = project(0.1, 0.5, f);
-                ctx3D.fillStyle = '#eab308';
-                ctx3D.fillRect(ps.x - 4, ps.y - 4, 8, 8);
-
-                // Fire Elevator Shaft (Right side)
-                let pe = project(0.9, 0.5, f);
-                ctx3D.strokeStyle = '#06b6d4';
-                ctx3D.strokeRect(pe.x - 6, pe.y - 6, 12, 12);
             }
 
-            // Draw Elevator Box
-            let peElev = project(0.9, 0.5, elevator.posY);
-            ctx3D.fillStyle = '#06b6d4';
-            ctx3D.fillRect(peElev.x - 5, peElev.y - 5, 10, 10);
+            // Draw Stair Shaft Line (Left)
+            const stairBottom = project3D(0.1, 0.5, 1, w, h);
+            const stairTop = project3D(0.1, 0.5, TOTAL_FLOORS, w, h);
+            ctx3D.beginPath();
+            ctx3D.moveTo(stairBottom.x, stairBottom.y);
+            ctx3D.lineTo(stairTop.x, stairTop.y);
+            ctx3D.strokeStyle = '#eab308';
+            ctx3D.setLineDash([3, 3]);
+            ctx3D.stroke();
+            ctx3D.setLineDash([]);
 
-            // Draw Agents in 3D
+            // Draw Elevator Box
+            const elevPos = project3D(0.85, 0.5, elevator.posY, w, h);
+            ctx3D.fillStyle = '#06b6d4';
+            ctx3D.fillRect(elevPos.x - 6, elevPos.y - 10, 12, 12);
+            ctx3D.strokeStyle = '#ffffff';
+            ctx3D.strokeRect(elevPos.x - 6, elevPos.y - 10, 12, 12);
+
+            // Draw Agents 3D
             occupants.forEach(o => {
                 if (o.state === 'EVACUATED') return;
-                let currentF = o.state === 'DESCENDING' ? o.floor - o.stairProgress : o.floor;
-                let p = project(o.x, 0.5, currentF);
+
+                let floorPos = o.state === 'DESCENDING' ? o.floor - o.stairProgress : o.floor;
+                let pt = project3D(o.x, o.y || 0.5, floorPos, w, h);
+
                 ctx3D.beginPath();
-                ctx3D.arc(p.x, p.y, 3.5, 0, Math.PI * 2);
-                ctx3D.fillStyle = o.state === 'INCAPACITATED' ? '#94a3b8' : '#22c55e';
+                ctx3D.arc(pt.x, pt.y, 3, 0, Math.PI * 2);
+                ctx3D.fillStyle = o.state === 'INCAPACITATED' ? '#52525b' : '#22c55e';
                 ctx3D.fill();
             });
 
+            // Draw Firefighters 3D
             firefighters.forEach(f => {
-                let p = project(f.x, 0.5, f.floor);
+                let pt = project3D(f.x, f.y, f.floor, w, h);
                 ctx3D.beginPath();
-                ctx3D.arc(p.x, p.y, 4.5, 0, Math.PI * 2);
+                ctx3D.arc(pt.x, pt.y, 4, 0, Math.PI * 2);
                 ctx3D.fillStyle = '#3b82f6';
                 ctx3D.fill();
             });
         }
 
-        // Rendering 2D Floor Plan View
+        // --- RENDER 2D FLOOR PLAN ---
         function draw2D() {
-            ctx2D.clearRect(0, 0, canvas2D.width, canvas2D.height);
+            ctx2D.fillStyle = '#000000';
+            ctx2D.fillRect(0, 0, canvas2D.width, canvas2D.height);
 
             const w = canvas2D.width;
             const h = canvas2D.height;
             const margin = 40;
-
             const planW = w - margin * 2;
             const planH = h - margin * 2;
 
             // Outer Floor Boundary
-            ctx2D.strokeStyle = '#64748b';
-            ctx2D.lineWidth = 3;
+            ctx2D.strokeStyle = '#3f3f46';
+            ctx2D.lineWidth = 2;
             ctx2D.strokeRect(margin, margin, planW, planH);
 
-            // Corridor Lines
-            ctx2D.strokeStyle = '#334155';
-            ctx2D.lineWidth = 1;
-            ctx2D.beginPath();
-            ctx2D.moveTo(margin, margin + planH * 0.3);
-            ctx2D.lineTo(margin + planW, margin + planH * 0.3);
-            ctx2D.moveTo(margin, margin + planH * 0.7);
-            ctx2D.lineTo(margin + planW, margin + planH * 0.7);
-            ctx2D.stroke();
-
             // Stairwell (Left Box)
-            ctx2D.fillStyle = 'rgba(234, 179, 8, 0.2)';
-            ctx2D.fillRect(margin, margin, planW * 0.2, planH);
+            ctx2D.fillStyle = 'rgba(234, 179, 8, 0.15)';
+            ctx2D.fillRect(margin, margin, planW * 0.15, planH);
             ctx2D.strokeStyle = '#eab308';
-            ctx2D.strokeRect(margin, margin, planW * 0.2, planH);
+            ctx2D.strokeRect(margin, margin, planW * 0.15, planH);
             ctx2D.fillStyle = '#eab308';
-            ctx2D.font = '12px sans-serif';
-            ctx2D.fillText('Tangga Darurat', margin + 10, margin + 25);
+            ctx2D.font = '11px sans-serif';
+            ctx2D.fillText('Tangga', margin + 8, margin + 20);
 
             // Fire Elevator Shaft (Right Box)
-            ctx2D.fillStyle = 'rgba(6, 182, 212, 0.2)';
-            ctx2D.fillRect(margin + planW * 0.8, margin, planW * 0.2, planH);
+            ctx2D.fillStyle = 'rgba(6, 182, 212, 0.15)';
+            ctx2D.fillRect(margin + planW * 0.85, margin, planW * 0.15, planH);
             ctx2D.strokeStyle = '#06b6d4';
-            ctx2D.strokeRect(margin + planW * 0.8, margin, planW * 0.2, planH);
+            ctx2D.strokeRect(margin + planW * 0.85, margin, planW * 0.15, planH);
             ctx2D.fillStyle = '#06b6d4';
-            ctx2D.fillText('Lift Kebakaran', margin + planW * 0.8 + 10, margin + 25);
+            ctx2D.fillText('Lift', margin + planW * 0.85 + 8, margin + 20);
 
-            // Smoke Overlay 2D
+            // Render Custom Walls
+            wallsPerFloor[selectedFloor2D].forEach(wall => {
+                ctx2D.beginPath();
+                ctx2D.moveTo(margin + wall.x1 * planW, margin + wall.y1 * planH);
+                ctx2D.lineTo(margin + wall.x2 * planW, margin + wall.y2 * planH);
+                ctx2D.strokeStyle = '#f43f5e';
+                ctx2D.lineWidth = 4;
+                ctx2D.stroke();
+            });
+
+            // Active Drawing Wall Preview
+            if (isDrawingWall && activeTool === 'WALL') {
+                ctx2D.beginPath();
+                ctx2D.moveTo(margin + wallStart.x * planW, margin + wallStart.y * planH);
+                ctx2D.lineTo(margin + currentMousePos.x * planW, margin + currentMousePos.y * planH);
+                ctx2D.strokeStyle = 'rgba(244, 63, 94, 0.5)';
+                ctx2D.lineWidth = 3;
+                ctx2D.setLineDash([4, 4]);
+                ctx2D.stroke();
+                ctx2D.setLineDash([]);
+            }
+
+            // Smoke Overlay
             let sLevel = smokeLevels[selectedFloor2D] || 0;
             if (config.smokeEnabled && sLevel > 0.02) {
-                ctx2D.fillStyle = `rgba(148, 163, 184, ${sLevel * 0.75})`;
+                ctx2D.fillStyle = `rgba(161, 161, 170, ${sLevel * 0.75})`;
                 ctx2D.fillRect(margin, margin, planW, planH);
             }
 
-            // Fire Source if on selected floor
+            // Fire Source
             if (selectedFloor2D === config.fireFloor) {
+                const fx = margin + config.fireX * planW;
+                const fy = margin + config.fireY * planH;
+
                 ctx2D.beginPath();
-                ctx2D.arc(margin + planW * 0.5, margin + planH * 0.5, 20 + Math.sin(Date.now() * 0.01) * 4, 0, Math.PI * 2);
-                ctx2D.fillStyle = 'rgba(239, 68, 68, 0.4)';
+                ctx2D.arc(fx, fy, 18 + Math.sin(Date.now() * 0.01) * 4, 0, Math.PI * 2);
+                ctx2D.fillStyle = 'rgba(239, 68, 68, 0.3)';
                 ctx2D.fill();
 
                 ctx2D.beginPath();
-                ctx2D.arc(margin + planW * 0.5, margin + planH * 0.5, 10, 0, Math.PI * 2);
+                ctx2D.arc(fx, fy, 10, 0, Math.PI * 2);
                 ctx2D.fillStyle = '#ef4444';
                 ctx2D.fill();
-                ctx2D.fillStyle = '#ffffff';
-                ctx2D.font = 'bold 10px sans-serif';
-                ctx2D.fillText('TITIKS API', margin + planW * 0.5 - 24, margin + planH * 0.5 - 15);
             }
 
             // Draw Agents on Selected Floor
             occupants.forEach(o => {
                 if (Math.floor(o.floor) === selectedFloor2D && o.state !== 'EVACUATED') {
                     let agentX = margin + o.x * planW;
-                    let agentY = margin + planH * 0.5 + (Math.sin(o.id) * planH * 0.15);
+                    let agentY = margin + o.y * planH;
 
                     ctx2D.beginPath();
                     ctx2D.arc(agentX, agentY, 6, 0, Math.PI * 2);
-                    ctx2D.fillStyle = o.state === 'INCAPACITATED' ? '#64748b' : '#22c55e';
+                    ctx2D.fillStyle = o.state === 'INCAPACITATED' ? '#52525b' : '#22c55e';
                     ctx2D.fill();
                     ctx2D.strokeStyle = '#ffffff';
                     ctx2D.lineWidth = 1;
@@ -839,10 +982,11 @@
                 }
             });
 
+            // Draw Firefighters
             firefighters.forEach(f => {
                 if (Math.floor(f.floor) === selectedFloor2D) {
                     let agentX = margin + f.x * planW;
-                    let agentY = margin + planH * 0.5;
+                    let agentY = margin + f.y * planH;
 
                     ctx2D.beginPath();
                     ctx2D.arc(agentX, agentY, 8, 0, Math.PI * 2);
@@ -855,7 +999,7 @@
             });
         }
 
-        // Loop Setup
+        // --- MAIN LOOP ---
         function loop() {
             updateSimulation();
             draw3D();
@@ -863,11 +1007,10 @@
             requestAnimationFrame(loop);
         }
 
-        // Start Init
+        // Initialization
         resizeCanvases();
         initSimulation();
         requestAnimationFrame(loop);
-
     </script>
 </body>
 </html>
